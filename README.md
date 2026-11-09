@@ -112,6 +112,39 @@
 
 请参阅：<https://lyswhut.github.io/lx-music-doc/desktop/use-source-code>
 
+### 本地运行环境记录（Fork 后补充）
+
+本仓库 Fork 自 [lyswhut/lx-music-desktop](https://github.com/lyswhut/lx-music-desktop)，根目录 LICENSE 为 Apache License 2.0；本次改造仅用于课程作业的技术学习研究。
+
+在 Windows 10 64 位上完成原版运行验证：
+
+| 环境 | 版本 / 说明 |
+| --- | --- |
+| Node.js | v22.23.4（满足 `engines: node >= 22`） |
+| npm | 10.9.2（Node 自带） |
+| Git for Windows | 克隆与提交 |
+| Trae IDE | 源代码管理 + 集成终端（PowerShell） |
+
+安装与启动（本机 PowerShell 禁止运行 `.ps1` 脚本，故 npm 命令统一写成 `npm.cmd`）：
+
+```bash
+npm.cmd install
+npm.cmd run dev
+```
+
+`npm.cmd run dev` 首次会编译 main / renderer / renderer-lyric / renderer-scripts 四组 webpack 产物，约 1–3 分钟，随后自动启动 Electron 并显示主界面；首次启动需点击「接受」用户协议。窗口正常显示即视为原版运行成功（在线播放需自行配置自定义音源，不影响窗口启动验证）。
+
+安装时的已知问题：`better-sqlite3@13.0.3` 的 install 脚本会调用 node-gyp 现场编译，未安装 Visual Studio「使用 C++ 的桌面开发」工作负载时会报 `gyp ERR! Could not find any Visual Studio installation`。本项目自带预编译二进制，可绕过编译：
+
+```bash
+npm.cmd install --ignore-scripts
+node build-config/postinstall.js
+ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ node node_modules/electron/install.js
+node build-config/dependencies-patch.js
+```
+
+其中 `postinstall.js` 把 `prebuilds/win32-x64.node` 复制到 `build/Release/`，`dependencies-patch.js` 使后续 `npm install` 跳过重复编译。以上操作只修改 `node_modules`（已被 `.gitignore` 忽略），不会进入版本库。
+
 ## 项目协议
 
 本项目基于 [Apache License 2.0](https://github.com/lyswhut/lx-music-desktop/blob/master/LICENSE) 许可证发行，以下协议是对于 Apache License 2.0 的补充，如有冲突，以以下协议为准。
