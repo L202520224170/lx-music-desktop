@@ -10,7 +10,7 @@ const afterPack = require('./build-after-pack')
 */
 const options = {
   appId: 'cn.toside.music.desktop',
-  productName: 'lx-music-desktop',
+  productName: 'L202520224170-Music',
   beforePack,
   afterPack,
   protocols: {
@@ -70,7 +70,7 @@ const winOptions = {
     allowToChangeInstallationDirectory: true,
     // differentialPackage: true,
     license: './licenses/license.rtf',
-    shortcutName: 'LX Music',
+    shortcutName: 'L202520224170 Music',
   },
 }
 /**
