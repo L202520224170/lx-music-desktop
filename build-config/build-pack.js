@@ -11,6 +11,9 @@ const afterPack = require('./build-after-pack')
 const options = {
   appId: 'cn.toside.music.desktop',
   productName: 'L202520224170-Music',
+  // 本机未安装 Visual Studio C++ 构建工具，跳过 electron-builder 的原生模块现场重建，
+  // 改用项目自带的预编译二进制（better-sqlite3 / bufferutil / utf-8-validate）。
+  npmRebuild: false,
   beforePack,
   afterPack,
   protocols: {

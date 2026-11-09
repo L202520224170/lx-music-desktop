@@ -145,6 +145,40 @@ node build-config/dependencies-patch.js
 
 其中 `postinstall.js` 把 `prebuilds/win32-x64.node` 复制到 `build/Release/`，`dependencies-patch.js` 使后续 `npm install` 跳过重复编译。以上操作只修改 `node_modules`（已被 `.gitignore` 忽略），不会进入版本库。
 
+### 本次改造内容（Fork 后补充）
+
+| 文件 | 改动 | 可见效果 |
+| --- | --- | --- |
+| `build-config/build-pack.js` | `productName` 由 `lx-music-desktop` 改为 `L202520224170-Music` | 安装包文件名、安装目录名随之改变 |
+| `build-config/build-pack.js` | `shortcutName` 由 `LX Music` 改为 `L202520224170 Music` | 开始菜单 / 桌面快捷方式名称改变 |
+| `src/lang/zh-cn.json` | `setting__about` 由「关于 LX Music」改为「关于 L202520224170 课程作业版」 | 设置 → 关于页面直接可见 |
+| `build-config/build-pack.js` | 新增 `npmRebuild: false` | 适配未安装 Visual Studio 的机器（见下） |
+
+### 构建与打包说明（Fork 后补充）
+
+完成上面的依赖安装后，**先关闭 `npm.cmd run dev` 启动的开发窗口**再打包（否则 `better_sqlite3.node` 被进程占用，`beforePack` 复制文件时会报 `EPERM`）。在 Windows PowerShell 中执行：
+
+```powershell
+$env:ELECTRON_MIRROR = "https://npmmirror.com/mirrors/electron/"
+$env:ELECTRON_BUILDER_BINARIES_MIRROR = "https://npmmirror.com/mirrors/electron-builder-binaries/"
+npm.cmd run pack
+```
+
+`npm.cmd run pack` = `node build-config/pack.js`（编译 main / renderer / renderer-lyric / renderer-scripts 四组 webpack 产物，约 3 分钟）+ `npm run pack:win:setup:x64`（electron-builder 打 NSIS 安装包）。其他终端可把 `npm.cmd` 写成 `npm`。国内网络建议设置上面两个镜像变量，否则下载 Electron 与 NSIS 资源容易超时。
+
+产物位于 `build/`，命名格式为 `<productName>-v<version>-x64-Setup.exe`，本次实际产物：
+
+```
+build/L202520224170-Music-v2.12.6-x64-Setup.exe
+```
+
+该文件为 Windows 64 位 NSIS 安装程序，仅通过 Release 附件与课程平台提交，**不进入版本库**（`build` 与 `*.exe` 均已被 `.gitignore` 忽略）。
+
+打包环境的两个已知问题及处理：
+
+1. `electron-builder` 默认会调用 `@electron/rebuild` 现场重建 `bufferutil` 等原生模块，未安装 Visual Studio C++ 构建工具时报 `Could not find any Visual Studio installation`。本项目自带预编译二进制，故在 `build-config/build-pack.js` 中设置 `npmRebuild: false` 跳过重建，日志显示 `skipped dependencies rebuild`。
+2. 若 `beforePack` 阶段报 `EPERM: operation not permitted, unlink ... better_sqlite3.node`，说明开发版 Electron 进程仍在运行，关闭该窗口后重新执行打包命令即可。
+
 ## 项目协议
 
 本项目基于 [Apache License 2.0](https://github.com/lyswhut/lx-music-desktop/blob/master/LICENSE) 许可证发行，以下协议是对于 Apache License 2.0 的补充，如有冲突，以以下协议为准。
