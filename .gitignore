@@ -71,3 +71,9 @@ publish/assets
 publish/utils/githubToken.js
 
 src/**/*-internal.js
+
+# 课程作业补充：打包产物、安装包与本地配置不进入版本库
+*.exe
+*.blockmap
+release/
+.env.local
